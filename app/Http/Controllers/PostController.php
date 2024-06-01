@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Mail\ArticleCreateMail;
+use App\Mail\ArticleEditMail;
 
 class PostController extends Controller
 {
@@ -31,7 +33,24 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request)
     {
-        /* return view ('post.store'); */
+        $path_image = '';
+        if ($request->hasFile('image')) {
+            $path_name = $request->file('image')->getClientOriginalName();
+            $path_image = $request->file('public/images', $path_name);
+        }
+
+        $post = Post::create([
+            "title"=> $request->title,
+            "body"=> $request->body,
+            "status"=> $request->status,
+            "user_id"=> auth()->user()->id,
+            "slug"=> str()->slug($request->title, '-'),
+            "image"=> $path_image,
+        ]);
+
+        Mail::to(auth()->user()->email)->send(new ArticleCreateMail($post));
+        session()->flash('success', 'Articolo creato con successo');
+        return redirect()->route('post.index');
     }
 
     /**
@@ -39,7 +58,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        return view ('post.show');
+        return view ('post.show', compact('post'));
     }
 
     /**
@@ -47,7 +66,7 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        return view ('post.edit');
+        return view ('post.edit', compact('post'));
     }
 
     /**
@@ -55,7 +74,22 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, Post $post)
     {
-        //
+        $path_image = $post->image;
+        if ($request->hasFile('image')) {
+            $path_name = $request->file('image')->getClientOriginalName();
+            $path_image = $request->file('public/images', $path_name);
+        }
+
+        $post->update([
+            "title"=> $request->title,
+            "body"=> $request->body,
+            "status"=> $request->status,
+            "image"=> $path_image,
+        ]); 
+
+        Mail::to(auth()->user()->email)->send(new ArticleEditMail($post));
+        session()->flash('success', 'Articolo modificato con successo');
+        return redirect()->route('post.index');
     }
 
     /**
@@ -63,6 +97,6 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $post->delete();
     }
 }

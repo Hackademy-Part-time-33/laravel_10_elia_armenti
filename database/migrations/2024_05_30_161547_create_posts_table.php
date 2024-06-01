@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->string('slug')->unique();
+            $table->string('email')->unique();
             $table->longText('body');
             $table->string('image');
             $table->unsignedBigInteger('user_id');

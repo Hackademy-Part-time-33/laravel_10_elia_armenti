@@ -8,5 +8,5 @@ Route::get('/', [Frontcontroller::class, 'homepage'])->name('items.homepage');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [Frontcontroller::class, 'dashboard'])->name('items.dashboard');
-    Route::resource('posts', PostController::class);  
+    Route::resource('post', PostController::class);  
 });

@@ -4,8 +4,9 @@
         <div class="row gx-5 justify-content-center ">
             <div class="col-lg-8 col-xl-6 border p-5 rounded">
                 
-                <form action="#" method="POST"
+                <form action="{{route ('post.store')}}" method="POST"
                 enctype="multipart/form-data">
+                @csrf
                 <div class="form-floating mb-3">
                     <input class="form-control" id="title" value
                     name="title" type="text">
